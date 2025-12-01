@@ -47,22 +47,29 @@ with PoseLandmarker.create_from_options(options) as landmarker:
         # O resultado é enviado para o util que desenha o "esquelo" com bases nos pontos do corpo, e é retornado o desenho do esqueleto
         annotated_image = draw_landmarks_on_image(frame, result)
 
+        # --- LÓGICA CORRIGIDA ---
         if result.pose_landmarks:
-            # 2. Pega os pontos da primeira pessoa detectada
             landmarks = result.pose_landmarks[0] 
-            # 3. Passa os pontos para a função
+            
+            # Chama a função de cálculo
+            # Nota: O calculate_angle_rosca retorna None se a visibilidade for ruim (veja alteração no utils abaixo)
             angle_back = calculate_angle_rosca(landmarks, mp_pose)
-        if angle_back < 170 or angle_back > 190:
-            cv2.putText(annotated_image, "ALERTA: POSTURA!", (50, 100), 
-                cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 4, cv2.LINE_AA)
-            
-            # Opcional: Desenhar uma caixa vermelha em volta da tela
-            cv2.rectangle(annotated_image, (0,0), (640,480), (0,0,255), 10)
-            
-        else:
-            # Se estiver tudo bem, mostra um texto verde discreto
-            cv2.putText(annotated_image, "OK", (50, 100), 
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+            if angle_back is not None:
+                # 1. VISUALIZAÇÃO DE DEBUG (Veja o número na tela!)
+                cv2.putText(annotated_image, f"Angulo: {int(angle_back)}", (50, 50), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
+
+                # 2. LÓGICA DE ALERTA (Com margem um pouco maior para evitar flickering)
+                # < 170: Curvando para frente
+                # > 195: Jogando as costas para trás (hiperextensão)
+                if angle_back < 170 or angle_back > 195:
+                    cv2.putText(annotated_image, "ALERTA: COLUNA!", (50, 100), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 255), 3, cv2.LINE_AA)
+                    cv2.rectangle(annotated_image, (0,0), (640,480), (0,0,255), 10)
+                else:
+                    cv2.putText(annotated_image, "POSTURA OK", (50, 100), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
         # O desenho do esqueleto é renderizado na tela
         cv2.imshow("Webcam - Q para sair", annotated_image)

@@ -42,20 +42,18 @@ def calculate_angle(a, b, c):
 
     return angle
 
-def calculate_angle_rosca (landmarks, mp_pose):
-  # --- PONTOS NECESSÁRIOS ---
-  # Vamos usar o lado ESQUERDO (Left)
-  shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-    landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-  hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-    landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-  knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
-    landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+def calculate_angle_rosca(landmarks, mp_pose):
+    # Índices
+    idx_shoulder = mp_pose.PoseLandmark.LEFT_SHOULDER.value
+    idx_hip = mp_pose.PoseLandmark.LEFT_HIP.value
+    idx_knee = mp_pose.PoseLandmark.LEFT_KNEE.value
 
-  # --- CÁLCULO DO ÂNGULO DA COLUNA ---
-  angle_back = calculate_angle(shoulder, hip, knee)
-          
-  return angle_back
+    shoulder = [landmarks[idx_shoulder].x, landmarks[idx_shoulder].y]
+    hip = [landmarks[idx_hip].x, landmarks[idx_hip].y]
+    knee = [landmarks[idx_knee].x, landmarks[idx_knee].y]
+
+    angle_back = calculate_angle(shoulder, hip, knee)
+    return angle_back
             
 
        
